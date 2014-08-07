@@ -1,0 +1,221 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>mwr2</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="/favicon.ico">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css -->
+
+        <!-- endbower -->
+        <!-- endbuild -->
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+        <!-- build:js scripts/vendor/modernizr.js -->
+        <script src="../bower_components/modernizr/modernizr.js"></script>
+        <!-- endbuild -->
+
+    </head>
+    <body data-controller="MenuController">
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+
+        <section class="container">
+            <header class="header">
+                <h3 class="text-muted"><a href="index.html">Five Guys</a></h3>
+            </header>
+
+            <section id="app"></section>
+        </section>
+
+        <template id="menu">
+            <a href="#/basket" class="btn btn-primary basket-btn">
+                <i class="glyphicon glyphicon-shopping-cart"></i>
+                <span class="badge" rv-text="model.Basket.BasketProducts | length"></span>
+            </a>
+            <header>
+                <div class="panel panel-default">
+                    <div class="panel-heading" rv-on-click="controller.toggleVendorInfo"><i class="glyphicon glyphicon-chevron-down"></i>&nbsp;{model.Vendor.Name}</div>
+                    <div class="panel-body clearfix" rv-show="controller.isVendorInfoDisplayed">
+                        <address class="pull-left">
+                            {model.Vendor.StreetAddress}<br>
+                            {model.Vendor.City}, {model.Vendor.State} {model.Vendor.ZipCode}<br>
+                        </address>
+                        <a rv-href="model.Vendor.TelephoneNumber | telLink" class="btn btn-success pull-right"><i class="glyphicon glyphicon-earphone"></i>&nbsp;{model.Vendor.TelephoneNumber}</a>
+                    </div>
+                </div>
+            </header>
+            <section id="menu-app"></section>
+        </template>
+
+        <template id="categories">
+            <ul class="list-group" rv-if="model.categories">
+              <li class="list-group-item clearfix" rv-each-category="model.categories" rv-on-click="controller.viewCategory">
+                <div class="pull-left"><strong>{ category.Name }</strong> <br> { category.Description }</div>
+                <i class="glyphicon glyphicon-chevron-right pull-right"></i>
+              </li>
+            </ul>
+            <div class="alert alert-danger" rv-if="model.categories | isEmpty">No Categories</div>
+        </template>
+
+        <template id="products">
+            <ul class="list-group" rv-if="model.category">
+              <li class="list-group-item clearfix" rv-each-product="model.products" rv-on-click="controller.viewProduct">
+                <span class="pull-left">{ product.Name }, { product.Description }</span>
+                <strong class="pull-right">{ product.BaseCost | currency }</span>
+              </li>
+            </ul>
+            <div class="alert alert-danger" rv-if="model.products | isEmpty">No Products</div>
+        </template>
+
+        <template id="product">
+            <h2>{ model.Product.Name }</h2>
+            <p>{ model.Product.Description }</p>
+
+            <div rv-each-option="model.OptionGroups">
+                <h4>{option.Description}</h4>
+                <ul>
+                    <li rv-each-choice="option.Choices">
+                        <label>
+                            { choice.Choice }
+
+                            <input rv-type="option.IsMandatory | optionChoiceType" rv-checked="choice.IsSelected" rv-name="option.Id" />
+                        </label>
+                    </li>
+                </ul>
+            </div>
+
+            <button class="btn btn-lg btn-block" rv-on-click="controller.addToCart">Add to Cart</button>
+        </template>
+
+        <template id="basket">
+            <h3>Basket</h3>
+            <h5>Order Contents</h5>
+            <hr />
+            <ul>
+                <li class="clearfix" rv-each-product="model.BasketProducts">
+                    <dl>
+                        <dt>{product.Name}</dt>
+                        <dd>{product.BaseCost | currency}</dt>
+                    </dl>
+                </li>
+            </ul>
+            <hr />
+            <dl class="clearfix">
+                <dt>SubTotal</dt>
+                <dd>{model.SubTotal | currency}</dd>
+                <dt>Tax</dt>
+                <dd>{model.SalesTax | currency}</dd>
+                <dt>Tip</dt>
+                <dd>
+                    {model.Tip | currency}
+                    <a rv-on-click="controller.toggleTipDetails" rv-text="controller.tipButtonText < model.Tip"></a>
+                    <div rv-show="controller.isTipDetailsDisplayed">
+                        <div class="btn-group">
+                          <button type="button" class="btn btn-default" rv-each-tip="controller.tipOptions" rv-data-value="tip.value" rv-on-click="controller.setTip">{tip.display}</button>
+                          <button type="button" class="btn btn-default" rv-on-click="controller.clearTip">X</button>
+                        </div>
+                    </div>
+                </dd>
+                <dt>Total</dt>
+                <dd>{model.TotalCost | currency}</dd>
+            </dl>
+            <div class="btn-group btn-group-justified">
+                <div class="btn-group" rv-each-mode="controller.orderModes">
+                  <button type="button" class="btn btn-default" rv-data-value="mode.display" rv-on-click="controller.setOrderMode">{mode.display}</button>
+                </div>
+            </div>
+            <br>
+            <section rv-show="model.IsDelivery">
+                <a href="#modal-address" class="btn btn-default btn-lg btn-block" rv-show="model.IsDelivery">Add Address</a>
+                <div rv-show="controller.deliveryAddress">
+                    <div class="row">
+                        {controller.deliveryAddress.street}
+                        {controller.deliveryAddress.streetLineTwo}
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4">
+                            {controller.deliveryAddress.city}
+                        </div>
+                        <div class="col-xs-4">
+                            {controller.deliveryAddress.state}
+                        </div>
+                        <div class="col-xs-4">
+                            {controller.deliveryAddress.zipCode}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <hr />
+            <a class="btn btn-primary btn-lg btn-block">Checkout</a>
+
+            <section class="modal--show" id="modal-address" tabindex="-1"
+                role="dialog" aria-labelledby="modal-label" aria-hidden="true">
+
+                <div class="modal-inner">
+                    <header id="modal-label">
+                        <h3>Add New Address</h3>
+                    </header>
+                    <div class="modal-content">
+                        <form>
+                            <div class="form-group">
+                                <input type="text" placeholder="Street Address" class="form-control" rv-value="controller.addressViewModel.street" /><br>
+                                <input type="text" placeholder="Apt # Or Cross St" class="form-control" rv-value="controller.addressViewModel.streetLineTwo" />
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-xs-4">
+                                    <input type="text" placeholder="City" class="form-control" rv-value="controller.addressViewModel.city" />
+                                </div>
+                                <div class="col-xs-4">
+                                    <input type="text" placeholder="State" class="form-control" rv-value="controller.addressViewModel.state" />
+                                </div>
+                                <div class="col-xs-4">
+                                    <input type="text" placeholder="Zip Code" class="form-control" rv-value="controller.addressViewModel.zipCode" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <footer>
+                        <button type="button" class="btn btn-primary" rv-on-click="controller.setDeliveryAddress">Add Address</button>
+                    </footer>
+                </div>
+
+                <a href="#!" class="modal-close" title="Close this modal" data-close="Close"
+                    data-dismiss="modal">×</a>
+            </section>
+        </template>
+
+
+        <!-- build:js scripts/vendor.js -->
+        <script src="../bower_components/zepto/zepto.js"></script>
+        <!-- endbuild -->
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+
+        <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="../bower_components/store.js/store.js"></script>
+        <script src="../bower_components/pathjs/path.js"></script>
+        <script src="../bower_components/stapes/stapes.js"></script>
+        <script src="../bower_components/rivets/dist/rivets.js"></script>
+        <script src="scripts/rivets-adapter.js"></script>
+        <script src="scripts/olo.js"></script>
+        <script src="scripts/base-view.js"></script>
+        <script src="scripts/menu.js"></script>
+        <script src="scripts/main.js"></script>
+        <!-- endbuild -->
+</body>
+</html>

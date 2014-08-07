@@ -1,0 +1,11 @@
+{
+  "name": "mwr2",
+  "private": true,
+  "dependencies": {
+    "bootstrap-sass-official": "~3.1.0",
+    "modernizr": "~2.6.2",
+    "jquery": "~1.11.0",
+    "css-modal": "~1.1.8"
+  },
+  "devDependencies": {}
+}
