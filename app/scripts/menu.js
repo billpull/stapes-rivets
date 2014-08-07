@@ -2,6 +2,10 @@
 'use strict';
 Olo.Menu = {};
 
+//Todo: Consistency in Controllers
+//      BaseController?
+//      Refactor to separate files and closures
+
 Olo.ViewModels.BasketViewModel = Stapes.subclass({
 	constructor: function (model) {
 		this.BasketGuid = model.BasketGuid || Olo.Util.generateGuid();
