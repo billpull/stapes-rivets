@@ -99,6 +99,7 @@ Olo.Controllers.BasketController = Stapes.subclass({
 			ctx.model.IsDelivery = true;
 			ctx.isTipDetailsDisplayed = true;
 		} else {
+			ctx.model.IsDelivery = false;
 			ctx.isTipDetailsDisplayed = false;
 		}
 
